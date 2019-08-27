@@ -54,7 +54,27 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t meldung01[] = "Hallo Hazet !\r\n";
+uint8_t *ptr_meldung01 = &meldung01[0];
 
+uint8_t ESP01_RX_buf[1] = " ";
+uint8_t *ptr_ESP01_RX_buf = &ESP01_RX_buf[0];
+
+uint8_t AT_cmd00[] = "AT\r\n";
+uint16_t AT_cmd00size = 4;
+uint8_t *ptr_ATcmd00 = &AT_cmd00[0];
+
+uint8_t AT_cmd01[] = "AT+GMR\r\n";
+uint16_t AT_cmd01size = 8;
+uint8_t *ptr_ATcmd01 = &AT_cmd01[0];
+
+uint8_t AT_cmd02[] = "AT+CWMODE_CUR=1\r\n";
+uint16_t AT_cmd02size = 17;
+uint8_t *ptr_ATcmd02 = &AT_cmd02[0];
+
+uint8_t AT_cmd03[] = "AT+CWLAP\r\n";
+uint16_t AT_cmd03size = 10;
+uint8_t *ptr_ATcmd03 = &AT_cmd03[0];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,7 +85,29 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_UART_RxCpltCallback could be implemented in the user file
+   */
+	//if (huart == &huart2) {
+		HAL_UART_Transmit(&huart1, ptr_ESP01_RX_buf, 1, 1);
+		HAL_UART_Receive_IT(&huart2, ptr_ESP01_RX_buf, 1);
+	//}
+}
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_UART_TxCpltCallback could be implemented in the user file
+   */
+	if (huart == &huart1) {
+		//HAL_UART_Receive_IT(&huart2, ptr_ESP01_RX_buf, 1);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -113,7 +155,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Receive_IT(&huart2, ptr_ESP01_RX_buf, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -123,6 +165,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  HAL_UART_Transmit(&huart2, ptr_ATcmd00, AT_cmd00size, 10);
+	  HAL_Delay(1000);
+	  HAL_UART_Transmit(&huart2, ptr_ATcmd01, AT_cmd01size, 100);
+	  HAL_Delay(3000);
+	  HAL_UART_Transmit(&huart2, ptr_ATcmd02, AT_cmd02size, 100);
+	  HAL_Delay(3000);
+	  HAL_UART_Transmit(&huart2, ptr_ATcmd03, AT_cmd03size, 100);
+	  HAL_Delay(10000);
   }
   /* USER CODE END 3 */
 }
